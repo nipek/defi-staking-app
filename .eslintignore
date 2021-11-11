@@ -1,3 +1,4 @@
 migrations/**
 src/contracts/**
 test/**
+scripts/**
