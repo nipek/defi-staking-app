@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.8;
 
 contract Tether {
     string public name = "Mock Tether Token";
@@ -40,6 +40,7 @@ contract Tether {
         public
         returns (bool success)
     {
+        // spender is the subsystem
         allowance[msg.sender][_spender] = _value;
 
         emit Approval(msg.sender, _spender, _value);
@@ -53,13 +54,13 @@ contract Tether {
         uint256 _value
     ) public returns (bool success) {
         require(balanceOf[_from] >= _value);
-        require(allowance[msg.sender][_from] >= _value);
+        require(allowance[_from][msg.sender] >= _value);
 
         balanceOf[_to] += _value;
         balanceOf[_from] -= _value;
         // allowance of the from, from the msg sender
-        // msg sender might be binance
-        allowance[msg.sender][_from] -= _value;
+        // msg sender is the subsystem
+        allowance[_from][msg.sender] -= _value;
         emit Transfer(_from, _to, _value);
         return true;
     }
