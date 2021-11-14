@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import Navbar from "./Navbar";
 import Web3 from "web3";
 import Tether from "../truffle_abis/Tether.json";
+import RWD from "../truffle_abis/RWD.json";
+import DecentralBank from "../truffle_abis/DecentralBank.json";
+
 export default class App extends Component {
   state = {
     account: "0x0",
@@ -27,14 +30,7 @@ export default class App extends Component {
     }
   }
 
-  async loadBlockchainData() {
-    const web3 = window.web3;
-    const accounts = await web3.eth.getAccounts();
-    this.setState({ account: accounts[0] });
-
-    // setup network id thta we can then verify then hook it up to tether contract
-    const networkId = await web3.eth.net.getId();
-
+  async loadTether(web3, networkId) {
     // load tether contract
     const tetherData = Tether.networks[networkId];
     if (!tetherData) {
@@ -53,11 +49,77 @@ export default class App extends Component {
         ),
       },
       () => {
-        console.log(this.state.tetherBalance);
+        console.log(this.state.tetherBalance, "tetherBalance");
       }
     );
+  }
 
-    console.log(networkId, accounts);
+  async loadRWD(web3, networkId) {
+    // load tether contract
+    const rwdData = RWD.networks[networkId];
+
+    if (!rwdData) {
+      return window.alert(
+        "Error! RWD contract not deployed - no detected network!"
+      );
+    }
+
+    const rwd = new web3.eth.Contract(RWD.abi, rwdData.address);
+
+    this.setState(
+      {
+        rwd,
+        rwdBalance: String(
+          await rwd.methods.balanceOf(this.state.account).call()
+        ),
+      },
+      () => {
+        console.log(this.state.rwdBalance, "rwdBalance");
+      }
+    );
+  }
+
+  async loadDecentralBank(web3, networkId) {
+    // load tether contract
+    const decentalBankData = DecentralBank.networks[networkId];
+
+    if (!decentalBankData) {
+      return window.alert(
+        "Error! DecentralBank contract not deployed - no detected network!"
+      );
+    }
+
+    const decentralBank = new web3.eth.Contract(
+      DecentralBank.abi,
+      decentalBankData.address
+    );
+
+    this.setState(
+      {
+        decentralBank,
+        stakingBalance: String(
+          await decentralBank.methods.stakingBalance(this.state.account).call()
+        ),
+      },
+      () => {
+        console.log(this.state.stakingBalance, "stakingBalance");
+      }
+    );
+  }
+
+  async loadBlockchainData() {
+    const web3 = window.web3;
+    const accounts = await web3.eth.getAccounts();
+    this.setState({ account: accounts[0] }, async () => {
+      // setup network id thta we can then verify then hook it up to tether contract
+      const networkId = await web3.eth.net.getId();
+
+      this.loadTether(web3, networkId);
+      this.loadRWD(web3, networkId);
+      this.loadDecentralBank(web3, networkId);
+
+      console.log(networkId, accounts);
+    });
   }
 
   async componentDidMount() {
