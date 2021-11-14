@@ -114,9 +114,11 @@ export default class App extends Component {
       // setup network id thta we can then verify then hook it up to tether contract
       const networkId = await web3.eth.net.getId();
 
-      this.loadTether(web3, networkId);
-      this.loadRWD(web3, networkId);
-      this.loadDecentralBank(web3, networkId);
+      await this.loadTether(web3, networkId);
+      await this.loadRWD(web3, networkId);
+      await this.loadDecentralBank(web3, networkId);
+
+      this.setState({ loading: false });
 
       console.log(networkId, accounts);
     });
