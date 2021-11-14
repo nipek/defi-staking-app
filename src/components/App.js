@@ -155,7 +155,7 @@ export default class App extends Component {
   };
 
   // staking function
-  stakeTokens = async (amount) => {
+  stakeTokens = (amount) => {
     try {
       this.toggleLoading();
       // aprove
@@ -178,7 +178,7 @@ export default class App extends Component {
   };
 
   // unstaking function
-  unstakeTokens = async (amount) => {
+  unstakeTokens = () => {
     try {
       this.toggleLoading();
 

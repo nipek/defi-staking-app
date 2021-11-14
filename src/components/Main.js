@@ -70,7 +70,13 @@ export default class Main extends Component {
               </button>
             </div>
           </form>
-          <button className="btn btn-lg btn-block btn-primary">WITHDRAW</button>
+          <button
+            type="button"
+            onClick={this.props.unstakeTokens}
+            className="btn btn-lg btn-block btn-primary"
+          >
+            WITHDRAW
+          </button>
           <div className="card-body text-center" style={{ color: "blue" }}>
             AIRDROP
           </div>
