@@ -5,6 +5,7 @@ import Tether from "../truffle_abis/Tether.json";
 import RWD from "../truffle_abis/RWD.json";
 import DecentralBank from "../truffle_abis/DecentralBank.json";
 import Main from "./Main";
+
 export default class App extends Component {
   state = {
     account: "0x0",

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import tether from "../tether.png";
+import Airdrop from "./Airdrop";
 
 export default class Main extends Component {
   state = { amount: 0 };
@@ -53,7 +54,7 @@ export default class Main extends Component {
                   value={this.state.amount}
                   onChange={({ target: { value } }) => {
                     this.setState({ amount: value });
-                    console.log(value);
+                    //  console.log(value);
                   }}
                   required
                 />
@@ -80,7 +81,7 @@ export default class Main extends Component {
             WITHDRAW
           </button>
           <div className="card-body text-center" style={{ color: "blue" }}>
-            AIRDROP
+            <Airdrop stakingBalance={this.props.stakingBalance} />
           </div>
         </div>
       </div>
