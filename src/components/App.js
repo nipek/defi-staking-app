@@ -145,6 +145,54 @@ export default class App extends Component {
     await this.loadBlockchainData();
   }
 
+  toggleLoading = () => {
+    this.setState((prevState) => {
+      return {
+        ...prevState,
+        loading: !prevState.loading,
+      };
+    });
+  };
+
+  // staking function
+  stakeTokens = async (amount) => {
+    try {
+      this.toggleLoading();
+      // aprove
+      this.state.tether.methods
+        .approve(this.state.decentralBank._address, amount)
+        .send({ from: this.state.account })
+        .on("transactionHash", (hash) => {
+          this.toggleLoading();
+
+          this.state.decentralBank.methods
+            .depositTokens(amount)
+            .send({ from: this.state.account })
+            .on("transactionHash", (hash) => {
+              this.toggleLoading();
+            });
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // unstaking function
+  unstakeTokens = async (amount) => {
+    try {
+      this.toggleLoading();
+
+      this.state.decentralBank.methods
+        .unstakeTokens()
+        .send({ from: this.state.account })
+        .on("transactionHash", (hash) => {
+          this.toggleLoading();
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   render() {
     const { stakingBalance, tetherBalance, rwdBalance } = this.state;
     return (
@@ -164,6 +212,8 @@ export default class App extends Component {
                   </p>
                 ) : (
                   <Main
+                    unstakeTokens={this.unstakeTokens}
+                    stakeTokens={this.stakeTokens}
                     tetherBalance={tetherBalance}
                     rwdBalance={rwdBalance}
                     stakingBalance={stakingBalance}

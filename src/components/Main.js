@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import tether from "../tether.png";
 
 export default class Main extends Component {
+  state = { amount: 0 };
+
   render() {
+    const { amount } = this.state;
     return (
       <div id="content" className="mt-3">
         <table className="table text-muted text-center">
@@ -26,7 +29,13 @@ export default class Main extends Component {
         </table>
 
         <div className="card mb-2" style={{ opacity: 0.9 }}>
-          <form className="mb-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              this.props.stakeTokens(String(amount));
+            }}
+            className="mb-3"
+          >
             <div style={{ borderSpacing: "0 1em" }}>
               <label className="float-left" style={{ marginLeft: 15 }}>
                 <b>Stake Tokens</b>
@@ -36,7 +45,16 @@ export default class Main extends Component {
                 {window.web3.utils.fromWei(this.props.tetherBalance, "ether")}
               </span>
               <div className="input-group mb-4">
-                <input type="text" placeholder="0" required />
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={this.state.amount}
+                  onChange={({ target: { value } }) => {
+                    this.setState({ amount: value });
+                    console.log(value);
+                  }}
+                  required
+                />
                 <div className="input-group-open">
                   <div className="input-group-text">
                     <img src={tether} alt="tether" height={32} /> USDT
