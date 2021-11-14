@@ -32,7 +32,9 @@ export default class Main extends Component {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              this.props.stakeTokens(String(amount));
+              this.props.stakeTokens(
+                window.web3.utils.toWei(String(amount), "ether")
+              );
             }}
             className="mb-3"
           >

@@ -18,80 +18,131 @@ export default class App extends Component {
   };
 
   async loadTether(web3, networkId) {
-    // load tether contract
-    const tetherData = Tether.networks[networkId];
-    if (!tetherData) {
-      return window.alert(
-        "Error! Tether contract not deployed - no detected network!"
+    let { tether } = this.state;
+    if (Object.keys(tether).length < 1) {
+      // load tether contract
+      const tetherData = Tether.networks[networkId];
+      if (!tetherData) {
+        return window.alert(
+          "Error! Tether contract not deployed - no detected network!"
+        );
+      }
+
+      tether = new web3.eth.Contract(Tether.abi, tetherData.address);
+
+      this.setState(
+        {
+          tether,
+          tetherBalance: String(
+            await tether.methods.balanceOf(this.state.account).call()
+          ),
+        },
+        () => {
+          console.log(this.state.tetherBalance, "tetherBalance");
+        }
+      );
+    } else {
+      // just get data
+      this.setState(
+        {
+          tetherBalance: String(
+            await tether.methods.balanceOf(this.state.account).call()
+          ),
+        },
+        () => {
+          console.log(this.state.tetherBalance, "tetherBalance");
+        }
       );
     }
-
-    const tether = new web3.eth.Contract(Tether.abi, tetherData.address);
-
-    this.setState(
-      {
-        tether,
-        tetherBalance: String(
-          await tether.methods.balanceOf(this.state.account).call()
-        ),
-      },
-      () => {
-        console.log(this.state.tetherBalance, "tetherBalance");
-      }
-    );
   }
 
   async loadRWD(web3, networkId) {
-    // load tether contract
-    const rwdData = RWD.networks[networkId];
+    let { rwd } = this.state;
+    if (Object.keys(rwd).length < 1) {
+      // load tether contract
+      const rwdData = RWD.networks[networkId];
 
-    if (!rwdData) {
-      return window.alert(
-        "Error! RWD contract not deployed - no detected network!"
+      if (!rwdData) {
+        return window.alert(
+          "Error! RWD contract not deployed - no detected network!"
+        );
+      }
+
+      rwd = new web3.eth.Contract(RWD.abi, rwdData.address);
+
+      this.setState(
+        {
+          rwd,
+          rwdBalance: String(
+            await rwd.methods.balanceOf(this.state.account).call()
+          ),
+        },
+        () => {
+          console.log(this.state.rwdBalance, "rwdBalance");
+        }
+      );
+    } else {
+      // just load data
+
+      this.setState(
+        {
+          rwdBalance: String(
+            await rwd.methods.balanceOf(this.state.account).call()
+          ),
+        },
+        () => {
+          console.log(this.state.rwdBalance, "rwdBalance");
+        }
       );
     }
-
-    const rwd = new web3.eth.Contract(RWD.abi, rwdData.address);
-
-    this.setState(
-      {
-        rwd,
-        rwdBalance: String(
-          await rwd.methods.balanceOf(this.state.account).call()
-        ),
-      },
-      () => {
-        console.log(this.state.rwdBalance, "rwdBalance");
-      }
-    );
   }
 
   async loadDecentralBank(web3, networkId) {
-    // load tether contract
-    const decentalBankData = DecentralBank.networks[networkId];
+    let { decentralBank } = this.state;
+    if (Object.keys(decentralBank).length < 1) {
+      // load tether contract
+      const decentalBankData = DecentralBank.networks[networkId];
 
-    if (!decentalBankData) {
-      return window.alert(
-        "Error! DecentralBank contract not deployed - no detected network!"
+      if (!decentalBankData) {
+        return window.alert(
+          "Error! DecentralBank contract not deployed - no detected network!"
+        );
+      }
+
+      decentralBank = new web3.eth.Contract(
+        DecentralBank.abi,
+        decentalBankData.address
+      );
+
+      this.setState(
+        {
+          decentralBank,
+          stakingBalance: String(
+            await decentralBank.methods
+              .stakingBalance(this.state.account)
+              .call()
+          ),
+        },
+        () => {
+          console.log(this.state.stakingBalance, "stakingBalance");
+        }
+      );
+    } else {
+      // just load data
+
+      this.setState(
+        {
+          stakingBalance: String(
+            await decentralBank.methods
+              .stakingBalance(this.state.account)
+              .call()
+          ),
+        },
+        () => {
+          console.log(this.state.stakingBalance, "stakingBalance");
+        }
       );
     }
-
-    const decentralBank = new web3.eth.Contract(
-      DecentralBank.abi,
-      decentalBankData.address
-    );
-
-    this.setState(
-      {
-        decentralBank,
-        stakingBalance: String(
-          await decentralBank.methods.stakingBalance(this.state.account).call()
-        ),
-      },
-      () => {
-        console.log(this.state.stakingBalance, "stakingBalance");
-      }
-    );
   }
 
   // detect metamask
@@ -163,13 +214,12 @@ export default class App extends Component {
         .approve(this.state.decentralBank._address, amount)
         .send({ from: this.state.account })
         .on("transactionHash", (hash) => {
-          this.toggleLoading();
-
           this.state.decentralBank.methods
             .depositTokens(amount)
             .send({ from: this.state.account })
             .on("transactionHash", (hash) => {
               this.toggleLoading();
+              this.loadBlockchainData();
             });
         });
     } catch (error) {
@@ -187,6 +237,7 @@ export default class App extends Component {
         .send({ from: this.state.account })
         .on("transactionHash", (hash) => {
           this.toggleLoading();
+          this.loadBlockchainData();
         });
     } catch (error) {
       console.log(error);
