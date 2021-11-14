@@ -17,19 +17,6 @@ export default class App extends Component {
     loading: true,
   };
 
-  // detect metamask
-
-  async loadWeb3() {
-    if (window.ethereum) {
-      window.web3 = new Web3(window.ethereum);
-      await window.ethereum.enable();
-    } else if (window.web3) {
-      window.web3 = new Web3(window.web3.currentProvider);
-    } else {
-      window.alert("No ethereum browser detected! You can check out MetaMask!");
-    }
-  }
-
   async loadTether(web3, networkId) {
     // load tether contract
     const tetherData = Tether.networks[networkId];
@@ -107,21 +94,49 @@ export default class App extends Component {
     );
   }
 
+  // detect metamask
+
+  async loadWeb3() {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+
+      // await window.ethereum.enable(); // depreciated
+    } else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider);
+    } else {
+      window.alert("No ethereum browser detected! You can check out MetaMask!");
+    }
+  }
+
   async loadBlockchainData() {
-    const web3 = window.web3;
-    const accounts = await web3.eth.getAccounts();
-    this.setState({ account: accounts[0] }, async () => {
-      // setup network id thta we can then verify then hook it up to tether contract
-      const networkId = await web3.eth.net.getId();
+    try {
+      const web3 = window.web3;
 
-      await this.loadTether(web3, networkId);
-      await this.loadRWD(web3, networkId);
-      await this.loadDecentralBank(web3, networkId);
+      //
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
 
-      this.setState({ loading: false });
+      // const accounts = await web3.eth.getAccounts();
+      this.setState({ account: accounts[0] }, async () => {
+        // setup network id thta we can then verify then hook it up to tether contract
+        const networkId = await web3.eth.net.getId();
 
-      console.log(networkId, accounts);
-    });
+        await this.loadTether(web3, networkId);
+        await this.loadRWD(web3, networkId);
+        await this.loadDecentralBank(web3, networkId);
+
+        this.setState({ loading: false });
+
+        console.log(networkId, accounts);
+      });
+    } catch (error) {
+      if (error.code === 4001) {
+        // User rejected request
+      }
+
+      // setError(error);
+    }
   }
 
   async componentDidMount() {
