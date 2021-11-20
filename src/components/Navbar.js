@@ -18,13 +18,13 @@ export default class Navbar extends Component {
             className="d-inline-block align- top"
             src={bank}
           />{" "}
-          DAPP Yield Staking (Decentralized Banking)
+          DAPP Yield Staking
         </a>
 
         <ul className="navbar-nav px-3">
           <li className="text-nowrap d-none nav-item d-sm-none d-sm-block">
             <small style={{ color: "#fff" }}>
-              ACCOUNT NUMBER: {this.props.account}
+              Wallet Address: {this.props.account}
             </small>
           </li>
         </ul>
